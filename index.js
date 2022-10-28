@@ -73,8 +73,8 @@ function updateDNS(ip) {
         "type": "A",
         "name": process.env.DOMAIN,
         "content": ip,
-        "ttl": 1,
-        "proxied": true
+        "ttl": process.env.TTL,
+        "proxied": process.env.PROXIED
     });
 
     const options = {
