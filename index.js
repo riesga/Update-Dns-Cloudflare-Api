@@ -74,7 +74,7 @@ function updateDNS(ip) {
         "name": process.env.DOMAIN,
         "content": ip,
         "ttl": process.env.TTL,
-        "proxied": process.env.PROXIED
+        "proxied": Boolean(process.env.PROXIED)
     });
 
     const options = {
@@ -101,6 +101,7 @@ function updateDNS(ip) {
             });
         } else {
             console.log('Ocurrió un error al ejecutar la función updateDNS.');
+            console.log('Status Code:', res.statusCode);
         }
     })
         .on('error', err => {
@@ -115,6 +116,3 @@ cron.schedule('* * * * *', function () {
     console.log('Ejecutado chequeo cada minuto.');
     init();
 });
-
-//Para obtener los Identifier de cada registro DNS
-//getIdDNS();
