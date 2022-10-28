@@ -1,14 +1,14 @@
 {
   "name": "checkconnection",
   "version": "1.0.0",
-  "description": "Aplicación para el control de DNS Cloudflare para Comercial Electromuebles y Cia LTDA. ",
+  "description": "Node Js app to update Cloudflare DNS records via API",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ."
   },
   "keywords": [],
-  "author": "Ing. Ricardo Estupiñan García",
+  "author": "Ing. Ricardo E.",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.0.3",
