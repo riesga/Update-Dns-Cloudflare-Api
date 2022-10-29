@@ -23,7 +23,6 @@ function getIdDNS() {
           });
           res.on('end', () => {
               console.log('Body: ', JSON.parse(data))
-
           });
       } else {
           console.log('Ocurrió un error al consultar la función getIdDNS.');
