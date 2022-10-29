@@ -29,58 +29,60 @@ function init() {
 }
 
 function checkDNS(ip) {
-    const options = {
-        hostname: process.env.API_URL,
-        port: process.env.PORT,
-        path: `/client/v4/zones/${process.env.ZONE_IDENTIFIER}/dns_records/${process.env.DNS_IDENTIFIER}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': process.env.API_TOKEN,
-        }
-    };
 
-    const req = https.request(options, (res) => {
-        if (res.statusCode == 200) {
-            let data = '';
-            console.log('Status Code:', res.statusCode);
-            res.on('data', chunk => {
-                data += chunk;
+    const domains = JSON.parse(process.env.LIST_DOMAIN);
+
+    domains.map(item => {
+        const options = {
+            hostname: process.env.API_URL,
+            port: process.env.PORT,
+            path: `/client/v4/zones/${process.env.ZONE_IDENTIFIER}/dns_records/${item.dns_identifier}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': process.env.API_TOKEN,
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            if (res.statusCode == 200) {
+                let data = '';
+                console.log('Status Code:', res.statusCode, 'Domain:', item.name);
+                res.on('data', chunk => {
+                    data += chunk;
+                });
+                res.on('end', () => {
+                    checkData = JSON.parse(data);
+                    if (checkData.result.content != ip) {     
+                        console.log("Actualizando dominio", item.name, "a la ip", ip);                   
+                        updateDNS(ip, item.name, item.dns_identifier, item.ttl, item.proxied );                        
+                    }
+                });
+            } else {
+                console.log('Ocurrió un error al consultar la función checkDNS.');
+            }
+        })
+            .on('error', err => {
+                console.log('Error: ', err.message);
             });
-            res.on('end', () => {
-                checkData = JSON.parse(data);
-                if (checkData.result.content != ip) {
-                    console.log("Actualizando DNS a la Ip " + ip);
-                    updateDNS(ip);
-                } else {
-                    console.log("Enlace correcto, no es necesario actualizar DNS.");
-                };
 
-            });
-        } else {
-            console.log('Ocurrió un error al consultar la función checkDNS.');
-        }
-    })
-        .on('error', err => {
-            console.log('Error: ', err.message);
-        });
-
-    req.end();
+        req.end();
+    });
 }
 
-function updateDNS(ip) {
+function updateDNS(ip, domain, id, ttl, proxied) {
     const data = JSON.stringify({
         "type": "A",
-        "name": process.env.DOMAIN,
+        "name": domain,
         "content": ip,
-        "ttl": process.env.TTL,
-        "proxied": Boolean(process.env.PROXIED)
+        "ttl": ttl,
+        "proxied": Boolean(proxied)
     });
 
     const options = {
         hostname: process.env.API_URL,
         port: process.env.PORT,
-        path: `/client/v4/zones/${process.env.ZONE_IDENTIFIER}/dns_records/${process.env.DNS_IDENTIFIER}`,
+        path: `/client/v4/zones/${process.env.ZONE_IDENTIFIER}/dns_records/${id}`,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -97,6 +99,7 @@ function updateDNS(ip) {
                 data += chunk;
             });
             res.on('end', () => {
+                console.log("Dominio", domain, "actualizado correctamente.");     
                 console.log('Body: ', JSON.parse(data));
             });
         } else {
@@ -113,6 +116,6 @@ function updateDNS(ip) {
 }
 
 cron.schedule('* * * * *', function () {
-    console.log('Ejecutado chequeo cada minuto.');
+    console.log('Ejecutado chequeo...');
     init();
 });
