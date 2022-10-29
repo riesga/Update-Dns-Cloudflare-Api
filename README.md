@@ -14,3 +14,7 @@ DNS_IDENTIFIER -> To get the Id of the DNS record, run the getIdentifier.js file
 # Run the app
 
 To run the app just inside the project folder run the command: npm start
+
+# Version app
+
+1.1.0
